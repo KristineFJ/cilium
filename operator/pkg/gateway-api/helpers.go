@@ -17,9 +17,16 @@ import (
 const (
 	kindGateway   = "Gateway"
 	kindHTTPRoute = "HTTPRoute"
+	kindTLSRoute  = "TLSRoute"
+	kindUDPRoute  = "UDPRoute"
+	kindTCPRoute  = "TCPRoute"
 	kindService   = "Service"
 	kindSecret    = "Secret"
 )
+
+func IsGateway(parent gatewayv1beta1.ParentReference) bool {
+	return (parent.Kind == nil || *parent.Kind == kindGateway) && (parent.Group == nil || *parent.Group == gatewayv1beta1.GroupName)
+}
 
 func IsService(be gatewayv1beta1.BackendObjectReference) bool {
 	return (be.Kind == nil || *be.Kind == kindService) && (be.Group == nil || *be.Group == corev1.GroupName)
@@ -27,6 +34,15 @@ func IsService(be gatewayv1beta1.BackendObjectReference) bool {
 
 func IsSecret(secret gatewayv1beta1.SecretObjectReference) bool {
 	return (secret.Kind == nil || *secret.Kind == kindSecret) && (secret.Group == nil || *secret.Group == corev1.GroupName)
+}
+
+func GatewayAddressTypePtr(addr gatewayv1beta1.AddressType) *gatewayv1beta1.AddressType {
+	return &addr
+}
+
+func GroupPtr(name string) *gatewayv1beta1.Group {
+	group := gatewayv1beta1.Group(name)
+	return &group
 }
 
 func namespaceDerefOr(namespace *gatewayv1beta1.Namespace, defaultNamespace string) string {
@@ -98,4 +114,21 @@ func toStringSlice(s []gatewayv1beta1.Hostname) []string {
 		res = append(res, string(h))
 	}
 	return res
+}
+
+func getSupportedKind(protocol gatewayv1beta1.ProtocolType) gatewayv1beta1.Kind {
+	switch protocol {
+	case gatewayv1beta1.TLSProtocolType:
+		return kindTLSRoute
+	case gatewayv1beta1.HTTPSProtocolType:
+		return kindHTTPRoute
+	case gatewayv1beta1.HTTPProtocolType:
+		return kindHTTPRoute
+	case gatewayv1beta1.TCPProtocolType:
+		return kindTCPRoute
+	case gatewayv1beta1.UDPProtocolType:
+		return kindUDPRoute
+	default:
+		return "Unknown"
+	}
 }
