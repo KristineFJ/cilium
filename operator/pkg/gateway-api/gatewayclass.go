@@ -16,6 +16,8 @@ type gatewayClassReconciler struct {
 	Scheme *runtime.Scheme
 
 	Model *internalModel
+
+	controllerName string
 }
 
 // SetupWithManager sets up the controller with the Manager.
