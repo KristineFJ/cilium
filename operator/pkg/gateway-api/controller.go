@@ -50,7 +50,7 @@ type Controller struct {
 
 // NewController returns a new gateway controller, which is implemented
 // using the controller-runtime library.
-func NewController(secretsNamespace string) (*Controller, error) {
+func NewController(enableSecretSync bool, secretsNamespace string) (*Controller, error) {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme: scheme,
 	})
@@ -88,6 +88,18 @@ func NewController(secretsNamespace string) (*Controller, error) {
 	}
 	if err = hrReconciler.SetupWithManager(mgr); err != nil {
 		return nil, err
+	}
+
+	if enableSecretSync {
+		secretReconciler := &secretSyncer{
+			Client:           mgr.GetClient(),
+			Scheme:           mgr.GetScheme(),
+			SecretsNamespace: secretsNamespace,
+			controllerName:   controllerName,
+		}
+		if err = secretReconciler.SetupWithManager(mgr); err != nil {
+			return nil, err
+		}
 	}
 
 	return &Controller{
