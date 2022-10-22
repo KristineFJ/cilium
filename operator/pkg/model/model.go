@@ -68,6 +68,18 @@ type DirectResponse struct {
 	Body       string `json:"payload,omitempty"`
 }
 
+// Header is a key-value pair.
+type Header struct {
+	Name  string
+	Value string
+}
+
+type HTTPRequestHeaderFilter struct {
+	HeadersToAdd    []Header `json:"headers_to_add,omitempty"`
+	HeadersToSet    []Header `json:"headers_to_set,omitempty"`
+	HeadersToRemove []string `json:"headers_to_remove,omitempty"`
+}
+
 // HTTPRoute holds all the details needed to route HTTP traffic to a backend.
 type HTTPRoute struct {
 	Name string `json:"name,omitempty"`
@@ -84,6 +96,10 @@ type HTTPRoute struct {
 	Backends []Backend `json:"backends,omitempty"`
 	// DirectResponse instructs the proxy to respond directly to the client.
 	DirectResponse *DirectResponse `json:"direct_response,omitempty"`
+
+	// RequestHeaderFilter can be used to add or remove an HTTP
+	//header from an HTTP request before it is sent to the upstream target.
+	RequestHeaderFilter *HTTPRequestHeaderFilter `json:"filter,omitempty"`
 }
 
 // GetMatchKey returns the key to be used for matching the backend.
