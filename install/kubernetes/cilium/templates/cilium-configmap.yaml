@@ -866,6 +866,12 @@ data:
   enable-bgp-control-plane: "false"
 {{- end }}
 
+{{- if .Values.bgpControlPlane.enabled }}
+  lb-ipam: "true"
+{{- else }}
+  lb-ipam: "false"
+{{- end }}
+
 {{- if not .Values.securityContext.privileged }}
   procfs: "/host/proc"
 {{- end }}
